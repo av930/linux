@@ -1,4 +1,4 @@
-struct ed060sc4_par {
+struct ed060sc4fb_par {
 	int gpio_ckv;
 	int gpio_cl;
 	int gpio_gmode;
@@ -14,7 +14,7 @@ struct ed060sc4_par {
 }
 
 
-static void ed060sc4_vclk(struct ed060sc4_par *par)
+static void ed060sc4_vclk(struct ed060sc4fb_par *par)
 {
 	gpio_set_value(par->gpio_ckv, 1);
 	udelay(1)
@@ -22,7 +22,7 @@ static void ed060sc4_vclk(struct ed060sc4_par *par)
 	udelay(4)
 }
 
-static void ed060sc4_hclk(struct ed060sc4_par *par)
+static void ed060sc4_hclk(struct ed060sc4fb_par *par)
 {
 	ndelay(40);
 	gpio_set_value(par->gpio_cl, 1);
@@ -30,7 +30,7 @@ static void ed060sc4_hclk(struct ed060sc4_par *par)
 	gpio_set_value(par->gpio_cl, 0);
 }
 
-static void ed060sc4_vscan_start(struct ed060sc4_par *par)
+static void ed060sc4_vscan_start(struct ed060sc4fb_par *par)
 {
 	gpio_set_value(par->gpio_gmode, 1);
 	ed060sc4_vclk(par);
@@ -40,7 +40,7 @@ static void ed060sc4_vscan_start(struct ed060sc4_par *par)
 	ed060sc4_vclk(par);
 }
 
-static void ed060sc4_vscan_write(struct ed060sc4_par *par)
+static void ed060sc4_vscan_write(struct ed060sc4fb_par *par)
 {
 	gpio_set_value(par->gpio_ckv, 1);
 	gpio_set_value(par->gpio_oe, 1);
@@ -50,7 +50,7 @@ static void ed060sc4_vscan_write(struct ed060sc4_par *par)
 	udelay(200);
 }
 
-static void ed060sc4_vscan_bulkwrite(struct ed060sc4_par *par)
+static void ed060sc4_vscan_bulkwrite(struct ed060sc4fb_par *par)
 {
 	gpio_set_value(par->gpio_ckv, 1);
 	udelay(20);
@@ -58,7 +58,7 @@ static void ed060sc4_vscan_bulkwrite(struct ed060sc4_par *par)
 	udelay(200);
 }
 
-static void ed060sc4_vscan_skip(struct ed060sc4_par *par)
+static void ed060sc4_vscan_skip(struct ed060sc4fb_par *par)
 {
 	gpio_set_value(par->gpio_ckv, 1);
 	udelay(1);
@@ -66,7 +66,7 @@ static void ed060sc4_vscan_skip(struct ed060sc4_par *par)
 	udelay(100);
 }
 
-static void ed060sc4_vscan_stop(struct ed060sc4_par *par)
+static void ed060sc4_vscan_stop(struct ed060sc4fb_par *par)
 {
 	gpio_set_value(par->gpio_gmode, 0);
 	ed060sc4_vclk(par);
@@ -76,7 +76,7 @@ static void ed060sc4_vscan_stop(struct ed060sc4_par *par)
 	ed060sc4_vclk(par);
 }
 
-static void ed060sc4_hscan_start(struct ed060sc4_par *par)
+static void ed060sc4_hscan_start(struct ed060sc4fb_par *par)
 {
 	gpio_set_value(par->gpio_le, 0);
 	gpio_set_value(par->gpio_oe, 0);
@@ -84,7 +84,7 @@ static void ed060sc4_hscan_start(struct ed060sc4_par *par)
 	gpio_set_value(par->gpio_sph, 0);
 }
 
-static void ed060sc4_hscan_write(struct ed060sc4_par *par,
+static void ed060sc4_hscan_write(struct ed060sc4fb_par *par,
 				 const uint8_t *data, int count)
 {
 	int i;
@@ -99,7 +99,7 @@ static void ed060sc4_hscan_write(struct ed060sc4_par *par,
 	}
 }
 
-static void ed060sc4_hscan_stop(struct ed060sc4_par *par)
+static void ed060sc4_hscan_stop(struct ed060sc4fb_par *par)
 {
 	gpio_set_value(par->gpio_sph, 1);
 	ed060sc4_hclk(par);
@@ -109,7 +109,7 @@ static void ed060sc4_hscan_stop(struct ed060sc4_par *par)
 	gpio_set_value(par->gpio_le, 0);
 }
 
-static void ed060sc4_power_on(struct ed060sc4_par *par)
+static void ed060sc4_power_on(struct ed060sc4fb_par *par)
 {
 	int i;
 
@@ -142,7 +142,7 @@ static void ed060sc4_power_on(struct ed060sc4_par *par)
 }
 
 
-static void ed060sc4_power_off(struct ed060sc4_par *par)
+static void ed060sc4_power_off(struct ed060sc4fb_par *par)
 {
 	gpio_set_value(par->gpio_vpos, 0);
 	gpio_set_value(par->gpio_vneg, 0);

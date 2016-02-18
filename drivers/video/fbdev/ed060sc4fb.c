@@ -52,49 +52,9 @@ static struct fb_var_screeninfo ed060sc4fb_var = {
 
 /* main ed060sc4fb functions */
 
-static void apollo_send_data(struct ed060sc4fb_par *par, unsigned char data)
-{
-	/* set data */
-	par->board->set_data(par, data);
-
-	/* set DS low */
-	par->board->set_ctl(par, HCB_DS_BIT, 0);
-
-	/* wait for ack */
-	par->board->wait_for_ack(par, 0);
-
-	/* set DS hi */
-	par->board->set_ctl(par, HCB_DS_BIT, 1);
-
-	/* wait for ack to clear */
-	par->board->wait_for_ack(par, 1);
-}
-
-static void apollo_send_command(struct ed060sc4fb_par *par, unsigned char data)
-{
-	/* command so set CD to high */
-	par->board->set_ctl(par, HCB_CD_BIT, 1);
-
-	/* actually strobe with command */
-	apollo_send_data(par, data);
-
-	/* clear CD back to low */
-	par->board->set_ctl(par, HCB_CD_BIT, 0);
-}
-
 static void ed060sc4fb_dpy_update(struct ed060sc4fb_par *par)
 {
-	int i;
-	unsigned char *buf = (unsigned char __force *)par->info->screen_base;
-
-	apollo_send_command(par, APOLLO_START_NEW_IMG);
-
-	for (i=0; i < (DPY_W*DPY_H/8); i++) {
-		apollo_send_data(par, *(buf++));
-	}
-
-	apollo_send_command(par, APOLLO_STOP_IMG_DATA);
-	apollo_send_command(par, APOLLO_DISPLAY_IMG);
+	// TOOD: fill here
 }
 
 /* this is called back from the deferred io workqueue */
@@ -231,8 +191,6 @@ static int ed060sc4fb_probe(struct platform_device *dev)
 	par = info->par;
 	par->info = info;
 	par->board = board;
-	par->send_command = apollo_send_command;
-	par->send_data = apollo_send_data;
 
 	info->flags = FBINFO_FLAG_DEFAULT | FBINFO_VIRTFB;
 
@@ -244,7 +202,7 @@ static int ed060sc4fb_probe(struct platform_device *dev)
 		goto err_fbreg;
 	platform_set_drvdata(dev, info);
 
-	fb_info(info, "Hecuba frame buffer device, using %dK of video memory\n",
+	fb_info(info, "ED060SC4 frame buffer device, using %dK of video memory\n",
 		videomemorysize >> 10);
 
 	/* this inits the dpy */
