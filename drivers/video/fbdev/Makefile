@@ -101,6 +101,7 @@ obj-$(CONFIG_FB_PMAG_BA)	  += pmag-ba-fb.o
 obj-$(CONFIG_FB_PMAGB_B)	  += pmagb-b-fb.o
 obj-$(CONFIG_FB_MAXINE)		  += maxinefb.o
 obj-$(CONFIG_FB_METRONOME)        += metronomefb.o
+obj-$(CONFIG_FB_ED060SC4)         += ed060sc4fb.o
 obj-$(CONFIG_FB_BROADSHEET)       += broadsheetfb.o
 obj-$(CONFIG_FB_AUO_K190X)	  += auo_k190x.o
 obj-$(CONFIG_FB_AUO_K1900)	  += auo_k1900fb.o
