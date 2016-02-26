@@ -25,11 +25,12 @@ struct ed060sc4fb_par {
 	int gpio_oe;
 	int gpio_le;	
 	int gpio_sph;
+	int gpio_spv;
 	int gpio_data[8];
 
 	int gpio_vdd;
 	int gpio_vpos;
 	int gpio_vneg;
-}
+};
 
 #endif

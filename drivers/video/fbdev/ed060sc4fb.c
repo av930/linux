@@ -23,6 +23,7 @@
 #include <linux/platform_device.h>
 #include <linux/list.h>
 #include <linux/uaccess.h>
+#include <linux/gpio.h>
 
 #include <video/ed060sc4fb.h>
 
@@ -55,9 +56,9 @@ static struct fb_var_screeninfo ed060sc4fb_var = {
 static void ed060sc4_vclk(struct ed060sc4fb_par *par)
 {
 	gpio_set_value(par->gpio_ckv, 1);
-	udelay(1)
+	udelay(1);
 	gpio_set_value(par->gpio_ckv, 0);
-	udelay(4)
+	udelay(4);
 }
 
 static void ed060sc4_hclk(struct ed060sc4fb_par *par)
@@ -78,6 +79,7 @@ static void ed060sc4_vscan_start(struct ed060sc4fb_par *par)
 	ed060sc4_vclk(par);
 }
 
+#if 0
 static void ed060sc4_vscan_write(struct ed060sc4fb_par *par)
 {
 	gpio_set_value(par->gpio_ckv, 1);
@@ -103,6 +105,7 @@ static void ed060sc4_vscan_skip(struct ed060sc4fb_par *par)
 	gpio_set_value(par->gpio_ckv, 0);
 	udelay(100);
 }
+#endif
 
 static void ed060sc4_vscan_stop(struct ed060sc4fb_par *par)
 {
@@ -122,6 +125,7 @@ static void ed060sc4_hscan_start(struct ed060sc4fb_par *par)
 	gpio_set_value(par->gpio_sph, 0);
 }
 
+#if 0
 static void ed060sc4_hscan_write(struct ed060sc4fb_par *par,
 				 const uint8_t *data, int count)
 {
@@ -136,6 +140,7 @@ static void ed060sc4_hscan_write(struct ed060sc4fb_par *par,
 		ed060sc4_hclk(par);
 	}
 }
+#endif
 
 static void ed060sc4_hscan_stop(struct ed060sc4fb_par *par)
 {
@@ -147,6 +152,7 @@ static void ed060sc4_hscan_stop(struct ed060sc4fb_par *par)
 	gpio_set_value(par->gpio_le, 0);
 }
 
+#if 0
 static void ed060sc4_power_on(struct ed060sc4fb_par *par)
 {
 	int i;
@@ -182,6 +188,8 @@ static void ed060sc4_power_on(struct ed060sc4fb_par *par)
 
 static void ed060sc4_power_off(struct ed060sc4fb_par *par)
 {
+	int i;
+
 	gpio_set_value(par->gpio_vpos, 0);
 	gpio_set_value(par->gpio_vneg, 0);
 
@@ -202,14 +210,13 @@ static void ed060sc4_power_off(struct ed060sc4fb_par *par)
 
 	gpio_set_value(par->gpio_vdd, 0);
 }
-
-
+#endif
 
 static void ed060sc4fb_dpy_update(struct ed060sc4fb_par *par)
 {
 	int i, x, y;
 	unsigned char *buf = (unsigned char __force *)par->info->screen_base;
-	unsigned char data, pixel, gpio;
+	unsigned char data, pixel, gpio1, gpio2;
 
 	ed060sc4_vscan_start(par);
 	for (y = 0; y < DPY_H; y++) {
@@ -217,7 +224,7 @@ static void ed060sc4fb_dpy_update(struct ed060sc4fb_par *par)
 		for (x = 0; x < DPY_W/8; x++) {
 			data = *(buf++);
 			for (i = 0; i < 8; i++){
-				pixel = data & (1 << 8 - (i + 1));
+				pixel = data & (1 << (8 - i + 1));
 				gpio1 = par->gpio_data[(i % 4) * 2];
 				gpio2 = par->gpio_data[(i % 4) * 2 + 1];
 				if (pixel) {
@@ -344,6 +351,7 @@ static int ed060sc4fb_probe(struct platform_device *dev)
 	unsigned char *videomemory;
 	struct ed060sc4fb_par *par;
 
+#if 0
 	/* pick up board specific routines */
 	board = dev->dev.platform_data;
 	if (!board)
@@ -352,6 +360,7 @@ static int ed060sc4fb_probe(struct platform_device *dev)
 	/* try to count device specific driver, if can't, platform recalls */
 	if (!try_module_get(board->owner))
 		return -ENODEV;
+#endif
 
 	videomemorysize = (DPY_W*DPY_H)/8;
 
@@ -371,7 +380,10 @@ static int ed060sc4fb_probe(struct platform_device *dev)
 	info->fix.smem_len = videomemorysize;
 	par = info->par;
 	par->info = info;
+	/* TODO: fill par->gpios */
+#if 0
 	par->board = board;
+#endif
 
 	info->flags = FBINFO_FLAG_DEFAULT | FBINFO_VIRTFB;
 
@@ -386,10 +398,12 @@ static int ed060sc4fb_probe(struct platform_device *dev)
 	fb_info(info, "ED060SC4 frame buffer device, using %dK of video memory\n",
 		videomemorysize >> 10);
 
+#if 0
 	/* this inits the dpy */
 	retval = par->board->init(par);
 	if (retval < 0)
 		goto err_fbreg;
+#endif
 
 	return 0;
 err_fbreg:
@@ -397,7 +411,9 @@ err_fbreg:
 err_fballoc:
 	vfree(videomemory);
 err_videomem_alloc:
+#if 0
 	module_put(board->owner);
+#endif
 	return retval;
 }
 
@@ -406,13 +422,17 @@ static int ed060sc4fb_remove(struct platform_device *dev)
 	struct fb_info *info = platform_get_drvdata(dev);
 
 	if (info) {
+#if 0
 		struct ed060sc4fb_par *par = info->par;
+#endif
 		fb_deferred_io_cleanup(info);
 		unregister_framebuffer(info);
 		vfree((void __force *)info->screen_base);
+#if 0
 		if (par->board->remove)
 			par->board->remove(par);
 		module_put(par->board->owner);
+#endif
 		framebuffer_release(info);
 	}
 	return 0;
