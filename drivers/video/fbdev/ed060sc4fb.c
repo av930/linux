@@ -54,7 +54,36 @@ static struct fb_var_screeninfo ed060sc4fb_var = {
 
 static void ed060sc4fb_dpy_update(struct ed060sc4fb_par *par)
 {
-	// TOOD: fill here
+	int i, x, y;
+	unsigned char *buf = (unsigned char __force *)par->info->screen_base;
+	unsigned char data, pixel, gpio;
+
+	ed060sc4_vscan_start(par);
+	for (y = 0; y < DPY_H; y++) {
+		ed060sc4_hscan_start(par);
+		for (x = 0; x < DPY_W/8; x++) {
+			data = *(buf++);
+			for (i = 0; i < 8; i++){
+				pixel = data & (1 << 8 - (i + 1));
+				gpio1 = par->gpio_data[(i % 4) * 2];
+				gpio2 = par->gpio_data[(i % 4) * 2 + 1];
+				if (pixel) {
+					gpio_set_value(gpio1, 1);
+					gpio_set_value(gpio2, 0);
+				} else {
+					gpio_set_value(gpio1, 0);
+					gpio_set_value(gpio2, 0);
+				}
+				if (i == 3 || i == 7) {
+					ed060sc4_hclk(par);
+				}
+			}
+		}
+		ed060sc4_hscan_stop(par);
+
+		ed060sc4_vclk(par);
+	}
+	ed060sc4_vscan_stop(par);
 }
 
 /* this is called back from the deferred io workqueue */
