@@ -24,6 +24,9 @@
 #include <linux/list.h>
 #include <linux/uaccess.h>
 #include <linux/gpio.h>
+#include <linux/of.h>
+#include <linux/of_device.h>
+#include <linux/of_gpio.h>
 
 #include <video/ed060sc4fb.h>
 
@@ -152,12 +155,12 @@ static void ed060sc4_hscan_stop(struct ed060sc4fb_par *par)
 	gpio_set_value(par->gpio_le, 0);
 }
 
-#if 0
 static void ed060sc4_power_on(struct ed060sc4fb_par *par)
 {
 	int i;
 
-	gpio_set_value(par->gpio_vdd, 1);
+	gpio_set_value(par->gpio_vdd5, 1);
+	gpio_set_value(par->gpio_vdd3, 1);
 
 	gpio_set_value(par->gpio_le, 0);
 	gpio_set_value(par->gpio_oe, 0);
@@ -208,9 +211,9 @@ static void ed060sc4_power_off(struct ed060sc4fb_par *par)
 	gpio_set_value(par->gpio_gmode, 0);
 	gpio_set_value(par->gpio_spv, 0);
 
-	gpio_set_value(par->gpio_vdd, 0);
+	gpio_set_value(par->gpio_vdd3, 0);
+	gpio_set_value(par->gpio_vdd5, 0);
 }
-#endif
 
 static void ed060sc4fb_dpy_update(struct ed060sc4fb_par *par)
 {
@@ -381,6 +384,8 @@ static int ed060sc4fb_probe(struct platform_device *dev)
 	par = info->par;
 	par->info = info;
 	/* TODO: fill par->gpios */
+
+	ed060sc4_power_on(par);
 #if 0
 	par->board = board;
 #endif
@@ -422,9 +427,8 @@ static int ed060sc4fb_remove(struct platform_device *dev)
 	struct fb_info *info = platform_get_drvdata(dev);
 
 	if (info) {
-#if 0
 		struct ed060sc4fb_par *par = info->par;
-#endif
+
 		fb_deferred_io_cleanup(info);
 		unregister_framebuffer(info);
 		vfree((void __force *)info->screen_base);
@@ -434,15 +438,26 @@ static int ed060sc4fb_remove(struct platform_device *dev)
 		module_put(par->board->owner);
 #endif
 		framebuffer_release(info);
+
+		ed060sc4_power_off(par);
 	}
 	return 0;
 }
+
+#ifdef CONFIG_OF
+static const struct of_device_id ed060sc4fb_dt_ids[] = {
+	{ .compatible = "primeview,ed060sc4", },
+	{ /* sentinel */ },
+};
+MODULE_DEVICE_TABLE(of, ed060sc4fb_dt_ids);
+#endif
 
 static struct platform_driver ed060sc4fb_driver = {
 	.probe	= ed060sc4fb_probe,
 	.remove = ed060sc4fb_remove,
 	.driver	= {
-		.name	= "ed060sc4fb",
+		.name = "ed060sc4fb",
+		.of_match_table = ed060sc4fb_dt_ids,
 	},
 };
 module_platform_driver(ed060sc4fb_driver);

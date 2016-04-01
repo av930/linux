@@ -18,19 +18,19 @@
 struct ed060sc4fb_par {
 	struct fb_info *info;
 
-	int gpio_ckv;
-	int gpio_cl;
-	int gpio_gmode;
-	int gpio_gpv;
-	int gpio_oe;
-	int gpio_le;	
-	int gpio_sph;
-	int gpio_spv;
-	int gpio_data[8];
+	int gpio_ckv;	/* gpio05 */
+	int gpio_cl;	/* gpio04 */
+	int gpio_gmode;	/* gpio11 */
+	int gpio_oe;	/* gpio08 */
+	int gpio_le;	/* gpio07 */
+	int gpio_sph;	/* gpio10 */
+	int gpio_spv;	/* gpio13 */
+	int gpio_data[8];	/* gpio20 ~ gpio27 */
 
-	int gpio_vdd;
-	int gpio_vpos;
-	int gpio_vneg;
+	int gpio_vdd3;	/* gpio19 */
+	int gpio_vdd5;	/* gpio18 */
+	int gpio_vpos;	/* gpio16 */
+	int gpio_vneg;	/* gpio17 */
 };
 
 #endif
