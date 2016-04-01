@@ -184,7 +184,7 @@ static void ed060sc4_power_on(struct ed060sc4fb_par *par)
 	ed060sc4_vscan_start(par);
 	for (i = 0; i < 800; i++)
 		ed060sc4_vclk(par);
-	
+
 	ed060sc4_vscan_stop(par);
 }
 
@@ -384,8 +384,32 @@ static int ed060sc4fb_probe(struct platform_device *dev)
 	par = info->par;
 	par->info = info;
 	/* TODO: fill par->gpios */
+#if 1
+	par->gpio_ckv = 5;
+	par->gpio_cl = 4;
+	par->gpio_gmode = 11;
+	par->gpio_oe = 8;
+	par->gpio_le = 7;
+	par->gpio_sph = 10;
+	par->gpio_spv = 13;
+
+	par->gpio_data[0] = 20;
+	par->gpio_data[1] = 21;
+	par->gpio_data[2] = 22;
+	par->gpio_data[3] = 23;
+	par->gpio_data[4] = 24;
+	par->gpio_data[5] = 25;
+	par->gpio_data[6] = 26;
+	par->gpio_data[7] = 27;
+
+	par->gpio_vdd3 = 19;
+	par->gpio_vdd5 = 18;
+	par->gpio_vpos = 16;
+	par->gpio_vneg = 17;
+#endif
 
 	ed060sc4_power_on(par);
+
 #if 0
 	par->board = board;
 #endif
