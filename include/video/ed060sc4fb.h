@@ -16,7 +16,8 @@
 /* struct used by ed060sc4 */
 
 struct ed060sc4fb_par {
-	struct fb_info *info;
+	struct fb_info         *info;
+	struct platform_device *pdev;
 
 	int gpio_ckv;	/* gpio05 */
 	int gpio_cl;	/* gpio04 */

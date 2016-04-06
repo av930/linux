@@ -346,6 +346,85 @@ static struct fb_deferred_io ed060sc4fb_defio = {
 	.deferred_io	= ed060sc4fb_dpy_deferred_io,
 };
 
+#ifdef CONFIG_OF
+int ed060sc4_of_init(struct ed060sc4fb_par *par)
+{
+	/* struct fb_info *info = par->info; */
+	struct device *dev = &par->pdev->dev;
+	struct device_node *np = dev->of_node;
+	int i;
+	int ret = -ENOENT;
+
+	par->gpio_ckv = of_get_named_gpio(np, "gpio-ckv", 0);
+	if (!gpio_is_valid(par->gpio_ckv)){
+		ret = -EINVAL;
+		goto exit;
+	}
+	par->gpio_cl = of_get_named_gpio(np, "gpio-cl", 0);
+	if (!gpio_is_valid(par->gpio_cl)){
+		ret = -EINVAL;
+		goto exit;
+	}
+	par->gpio_gmode = of_get_named_gpio(np, "gpio-gmode", 0);
+	if (!gpio_is_valid(par->gpio_gmode)){
+		ret = -EINVAL;
+		goto exit;
+	}
+	par->gpio_oe = of_get_named_gpio(np, "gpio-oe", 0);
+	if (!gpio_is_valid(par->gpio_oe)){
+		ret = -EINVAL;
+		goto exit;
+	}
+	par->gpio_le = of_get_named_gpio(np, "gpio-le", 0);
+	if (!gpio_is_valid(par->gpio_le)){
+		ret = -EINVAL;
+		goto exit;
+	}
+	par->gpio_sph = of_get_named_gpio(np, "gpio-sph", 0);
+	if (!gpio_is_valid(par->gpio_sph)){
+		ret = -EINVAL;
+		goto exit;
+	}
+	par->gpio_spv = of_get_named_gpio(np, "gpio-spv", 0);
+	if (!gpio_is_valid(par->gpio_spv)){
+		ret = -EINVAL;
+		goto exit;
+	}
+
+	for (i = 0; i < 8; i++) {
+		par->gpio_data[i] = of_get_named_gpio(np, "gpio-data", i);
+		if (!gpio_is_valid(par->gpio_data[i])){
+			ret = -EINVAL;
+			goto exit;
+		}
+	}
+
+	par->gpio_vdd3 = of_get_named_gpio(np, "gpio-vdd3", 0);
+	if (!gpio_is_valid(par->gpio_vdd3)){
+		ret = -EINVAL;
+		goto exit;
+	}
+	par->gpio_vdd5 = of_get_named_gpio(np, "gpio-vdd5", 0);
+	if (!gpio_is_valid(par->gpio_vdd5)){
+		ret = -EINVAL;
+		goto exit;
+	}
+	par->gpio_vpos = of_get_named_gpio(np, "gpio-vpos", 0);
+	if (!gpio_is_valid(par->gpio_vpos)){
+		ret = -EINVAL;
+		goto exit;
+	}
+	par->gpio_vneg = of_get_named_gpio(np, "gpio-vneg", 0);
+	if (!gpio_is_valid(par->gpio_vneg)){
+		ret = -EINVAL;
+		goto exit;
+	}
+
+exit:
+	return ret;
+}
+#endif
+
 static int ed060sc4fb_probe(struct platform_device *dev)
 {
 	struct fb_info *info;
@@ -383,7 +462,14 @@ static int ed060sc4fb_probe(struct platform_device *dev)
 	info->fix.smem_len = videomemorysize;
 	par = info->par;
 	par->info = info;
+	par->pdev = dev;
 	/* TODO: fill par->gpios */
+#ifdef CONFIG_OF
+	retval = ed060sc4_of_init(par);
+	if (retval < 0)
+		goto err_fbreg;
+#endif
+
 #if 1
 	par->gpio_ckv = 5;
 	par->gpio_cl = 4;
