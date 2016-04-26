@@ -1,0 +1,17 @@
+/dts-v1/;
+/plugin/;
+
+/ {
+	compatible = "brcm,bcm2708";
+
+	fragment@0 {
+		target-path = "/";
+		__overlay__ {
+			ed060sc4: ed060sc4 {
+				compatible = "primeview,ed060sc4";
+				/* firmware = <&firmware>; */
+				status = "okay";
+			};
+		};
+	};
+};

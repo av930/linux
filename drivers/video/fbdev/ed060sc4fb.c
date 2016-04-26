@@ -346,7 +346,7 @@ static struct fb_deferred_io ed060sc4fb_defio = {
 	.deferred_io	= ed060sc4fb_dpy_deferred_io,
 };
 
-#ifdef CONFIG_OF
+#if 1 // def CONFIG_OF
 int ed060sc4_of_init(struct ed060sc4fb_par *par)
 {
 	/* struct fb_info *info = par->info; */
@@ -433,6 +433,7 @@ static int ed060sc4fb_probe(struct platform_device *dev)
 	unsigned char *videomemory;
 	struct ed060sc4fb_par *par;
 
+	pr_err("ED060SC4 probe start\n");
 #if 0
 	/* pick up board specific routines */
 	board = dev->dev.platform_data;
@@ -464,7 +465,7 @@ static int ed060sc4fb_probe(struct platform_device *dev)
 	par->info = info;
 	par->pdev = dev;
 	/* TODO: fill par->gpios */
-#ifdef CONFIG_OF
+#if 1 //def CONFIG_OF
 	retval = ed060sc4_of_init(par);
 	if (retval < 0)
 		goto err_fbreg;
@@ -522,10 +523,13 @@ static int ed060sc4fb_probe(struct platform_device *dev)
 
 	return 0;
 err_fbreg:
+	pr_err("ED060SC4 init fail of err_fbreg\n");
 	framebuffer_release(info);
 err_fballoc:
+	pr_err("ED060SC4 init fail of err_fballoc\n");
 	vfree(videomemory);
 err_videomem_alloc:
+	pr_err("ED060SC4 init fail of err_videomem_alloc\n");
 #if 0
 	module_put(board->owner);
 #endif
@@ -554,7 +558,7 @@ static int ed060sc4fb_remove(struct platform_device *dev)
 	return 0;
 }
 
-#ifdef CONFIG_OF
+#if 1 // def CONFIG_OF
 static const struct of_device_id ed060sc4fb_dt_ids[] = {
 	{ .compatible = "primeview,ed060sc4", },
 	{ /* sentinel */ },
@@ -567,9 +571,12 @@ static struct platform_driver ed060sc4fb_driver = {
 	.remove = ed060sc4fb_remove,
 	.driver	= {
 		.name = "ed060sc4fb",
+#if 1
 		.of_match_table = ed060sc4fb_dt_ids,
+#endif
 	},
 };
+
 module_platform_driver(ed060sc4fb_driver);
 
 MODULE_DESCRIPTION("fbdev driver for ED060SC4 panel");
