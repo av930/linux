@@ -31,8 +31,8 @@
 #include <video/ed060sc4fb.h>
 
 /* Display specific information */
-#define DPY_W 600
-#define DPY_H 800
+#define DPY_W 800
+#define DPY_H 600
 
 static struct fb_fix_screeninfo ed060sc4fb_fix = {
 	.id =		"ed060sc4fb",
@@ -253,6 +253,8 @@ static void ed060sc4fb_dpy_update(struct ed060sc4fb_par *par)
 static void ed060sc4fb_dpy_deferred_io(struct fb_info *info,
 				struct list_head *pagelist)
 {
+	printk("#### %s\n", __func__);
+
 	ed060sc4fb_dpy_update(info->par);
 }
 
@@ -260,6 +262,8 @@ static void ed060sc4fb_fillrect(struct fb_info *info,
 				   const struct fb_fillrect *rect)
 {
 	struct ed060sc4fb_par *par = info->par;
+
+	printk("#### %s\n", __func__);
 
 	sys_fillrect(info, rect);
 
@@ -271,6 +275,8 @@ static void ed060sc4fb_copyarea(struct fb_info *info,
 {
 	struct ed060sc4fb_par *par = info->par;
 
+	printk("#### %s\n", __func__);
+
 	sys_copyarea(info, area);
 
 	ed060sc4fb_dpy_update(par);
@@ -280,6 +286,8 @@ static void ed060sc4fb_imageblit(struct fb_info *info,
 				const struct fb_image *image)
 {
 	struct ed060sc4fb_par *par = info->par;
+
+	printk("#### %s\n", __func__);
 
 	sys_imageblit(info, image);
 
@@ -298,6 +306,8 @@ static ssize_t ed060sc4fb_write(struct fb_info *info, const char __user *buf,
 	void *dst;
 	int err = 0;
 	unsigned long total_size;
+
+	printk("#### %s\n", __func__);
 
 	if (info->state != FBINFO_STATE_RUNNING)
 		return -EPERM;
@@ -329,6 +339,8 @@ static ssize_t ed060sc4fb_write(struct fb_info *info, const char __user *buf,
 
 	ed060sc4fb_dpy_update(par);
 
+	printk("#### err=%d, count=%d\n", err, count);
+
 	return (err) ? err : count;
 }
 
@@ -346,7 +358,7 @@ static struct fb_deferred_io ed060sc4fb_defio = {
 	.deferred_io	= ed060sc4fb_dpy_deferred_io,
 };
 
-#if 1 // def CONFIG_OF
+#if CONFIG_OF
 int ed060sc4_of_init(struct ed060sc4fb_par *par)
 {
 	/* struct fb_info *info = par->info; */
@@ -465,11 +477,6 @@ static int ed060sc4fb_probe(struct platform_device *dev)
 	par->info = info;
 	par->pdev = dev;
 	/* TODO: fill par->gpios */
-#if 1 //def CONFIG_OF
-	retval = ed060sc4_of_init(par);
-	if (retval < 0)
-		goto err_fbreg;
-#endif
 
 #if 1
 	par->gpio_ckv = 5;
@@ -493,6 +500,12 @@ static int ed060sc4fb_probe(struct platform_device *dev)
 	par->gpio_vdd5 = 18;
 	par->gpio_vpos = 16;
 	par->gpio_vneg = 17;
+#else
+#if CONFIG_OF
+	retval = ed060sc4_of_init(par);
+	if (retval < 0)
+		goto err_fbreg;
+#endif
 #endif
 
 	ed060sc4_power_on(par);
@@ -558,7 +571,7 @@ static int ed060sc4fb_remove(struct platform_device *dev)
 	return 0;
 }
 
-#if 1 // def CONFIG_OF
+#if CONFIG_OF
 static const struct of_device_id ed060sc4fb_dt_ids[] = {
 	{ .compatible = "primeview,ed060sc4", },
 	{ /* sentinel */ },
