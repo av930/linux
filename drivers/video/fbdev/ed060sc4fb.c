@@ -507,6 +507,120 @@ static int ed060sc4fb_probe(struct platform_device *dev)
 		goto err_fbreg;
 #endif
 #endif
+	retval = gpio_request_one(par->gpio_ckv,
+			GPIOF_DIR_OUT | GPIOF_INIT_LOW,
+			"ED060SC4 ckv");
+	if (retval)
+		goto err_gpio;
+
+
+	retval = gpio_request_one(par->gpio_cl,
+			GPIOF_DIR_OUT | GPIOF_INIT_LOW,
+			"ED060SC4 cl");
+	if (retval)
+		goto err_gpio;
+
+	retval = gpio_request_one(par->gpio_gmode,
+			GPIOF_DIR_OUT | GPIOF_INIT_LOW,
+			"ED060SC4 gmode");
+	if (retval)
+		goto err_gpio;
+
+	retval = gpio_request_one(par->gpio_oe,
+			GPIOF_DIR_OUT | GPIOF_INIT_LOW,
+			"ED060SC4 oe");
+	if (retval)
+		goto err_gpio;
+
+	retval = gpio_request_one(par->gpio_le,
+			GPIOF_DIR_OUT | GPIOF_INIT_LOW,
+			"ED060SC4 le");
+	if (retval)
+		goto err_gpio;
+
+	retval = gpio_request_one(par->gpio_sph,
+			GPIOF_DIR_OUT | GPIOF_INIT_LOW,
+			"ED060SC4 sph");
+	if (retval)
+		goto err_gpio;
+
+	retval = gpio_request_one(par->gpio_spv,
+			GPIOF_DIR_OUT | GPIOF_INIT_LOW,
+			"ED060SC4 spv");
+	if (retval)
+		goto err_gpio;
+
+	retval = gpio_request_one(par->gpio_data[0],
+			GPIOF_DIR_OUT | GPIOF_INIT_LOW,
+			"ED060SC4 data0");
+	if (retval)
+		goto err_gpio;
+
+	retval = gpio_request_one(par->gpio_data[1],
+			GPIOF_DIR_OUT | GPIOF_INIT_LOW,
+			"ED060SC4 data1");
+	if (retval)
+		goto err_gpio;
+
+	retval = gpio_request_one(par->gpio_data[2],
+			GPIOF_DIR_OUT | GPIOF_INIT_LOW,
+			"ED060SC4 data2");
+	if (retval)
+		goto err_gpio;
+
+	retval = gpio_request_one(par->gpio_data[3],
+			GPIOF_DIR_OUT | GPIOF_INIT_LOW,
+			"ED060SC4 data3");
+	if (retval)
+		goto err_gpio;
+
+	retval = gpio_request_one(par->gpio_data[4],
+			GPIOF_DIR_OUT | GPIOF_INIT_LOW,
+			"ED060SC4 data4");
+	if (retval)
+		goto err_gpio;
+
+	retval = gpio_request_one(par->gpio_data[5],
+			GPIOF_DIR_OUT | GPIOF_INIT_LOW,
+			"ED060SC4 data5");
+	if (retval)
+		goto err_gpio;
+
+	retval = gpio_request_one(par->gpio_data[6],
+			GPIOF_DIR_OUT | GPIOF_INIT_LOW,
+			"ED060SC4 data6");
+	if (retval)
+		goto err_gpio;
+
+	retval = gpio_request_one(par->gpio_data[7],
+			GPIOF_DIR_OUT | GPIOF_INIT_LOW,
+			"ED060SC4 data7");
+	if (retval)
+		goto err_gpio;
+
+	retval = gpio_request_one(par->gpio_vdd3,
+			GPIOF_DIR_OUT | GPIOF_INIT_LOW,
+			"ED060SC4 vdd3");
+	if (retval)
+		goto err_gpio;
+
+	retval = gpio_request_one(par->gpio_vdd5,
+			GPIOF_DIR_OUT | GPIOF_INIT_LOW,
+			"ED060SC4 vdd5");
+	if (retval)
+		goto err_gpio;
+
+	retval = gpio_request_one(par->gpio_vpos,
+			GPIOF_DIR_OUT | GPIOF_INIT_LOW,
+			"ED060SC4 vpos");
+	if (retval)
+		goto err_gpio;
+
+	retval = gpio_request_one(par->gpio_vneg,
+			GPIOF_DIR_OUT | GPIOF_INIT_LOW,
+			"ED060SC4 vneg");
+	if (retval)
+		goto err_gpio;
 
 	ed060sc4_power_on(par);
 
@@ -535,6 +649,8 @@ static int ed060sc4fb_probe(struct platform_device *dev)
 #endif
 
 	return 0;
+err_gpio:
+	pr_err("ED060SC4 fail to request gpio\n");
 err_fbreg:
 	pr_err("ED060SC4 init fail of err_fbreg\n");
 	framebuffer_release(info);
