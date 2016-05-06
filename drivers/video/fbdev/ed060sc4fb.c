@@ -92,6 +92,7 @@ static void ed060sc4_vscan_write(struct ed060sc4fb_par *par)
 	gpio_set_value(par->gpio_ckv, 0);
 	udelay(200);
 }
+#endif
 
 static void ed060sc4_vscan_bulkwrite(struct ed060sc4fb_par *par)
 {
@@ -101,6 +102,7 @@ static void ed060sc4_vscan_bulkwrite(struct ed060sc4fb_par *par)
 	udelay(200);
 }
 
+#if 0
 static void ed060sc4_vscan_skip(struct ed060sc4fb_par *par)
 {
 	gpio_set_value(par->gpio_ckv, 1);
@@ -128,7 +130,6 @@ static void ed060sc4_hscan_start(struct ed060sc4fb_par *par)
 	gpio_set_value(par->gpio_sph, 0);
 }
 
-#if 0
 static void ed060sc4_hscan_write(struct ed060sc4fb_par *par,
 				 const uint8_t *data, int count)
 {
@@ -143,7 +144,6 @@ static void ed060sc4_hscan_write(struct ed060sc4fb_par *par,
 		ed060sc4_hclk(par);
 	}
 }
-#endif
 
 static void ed060sc4_hscan_stop(struct ed060sc4fb_par *par)
 {
@@ -215,11 +215,40 @@ static void ed060sc4_power_off(struct ed060sc4fb_par *par)
 	gpio_set_value(par->gpio_vdd5, 0);
 }
 
+static void ed060sc4fb_subclear(struct ed060sc4fb_par *par)
+{
+	unsigned int x, y;
+	uint8_t byte;
+
+	printk("#### %s\n", __func__);
+
+	ed060sc4_hscan_start(par);
+	/* byte = color ? BYTE_WHITE : BYTE_BLACK; */
+	byte = 0xAA;
+	for (x = 0; x < DPY_W; x++) {
+		ed060sc4_hscan_write(par, &byte, 1);
+	}
+	ed060sc4_hscan_stop(par);
+
+	gpio_set_value(par->gpio_oe, 1);
+	ed060sc4_vscan_start(par);
+	for (y = 0; y < DPY_H; y++) {
+		ed060sc4_vscan_bulkwrite(par);
+	}
+	ed060sc4_vscan_stop(par);
+	gpio_set_value(par->gpio_oe, 0);
+}
+
 static void ed060sc4fb_dpy_update(struct ed060sc4fb_par *par)
 {
 	int i, x, y;
 	unsigned char *buf = (unsigned char __force *)par->info->screen_base;
 	unsigned char data, pixel, gpio1, gpio2;
+
+	ed060sc4fb_subclear(par);
+	ed060sc4fb_subclear(par);
+	ed060sc4fb_subclear(par);
+	ed060sc4fb_subclear(par);
 
 	ed060sc4_vscan_start(par);
 	for (y = 0; y < DPY_H; y++) {
@@ -231,10 +260,10 @@ static void ed060sc4fb_dpy_update(struct ed060sc4fb_par *par)
 				gpio1 = par->gpio_data[(i % 4) * 2];
 				gpio2 = par->gpio_data[(i % 4) * 2 + 1];
 				if (pixel) {
-					gpio_set_value(gpio1, 1);
-					gpio_set_value(gpio2, 0);
-				} else {
 					gpio_set_value(gpio1, 0);
+					gpio_set_value(gpio2, 1);
+				} else {
+					gpio_set_value(gpio1, 1);
 					gpio_set_value(gpio2, 0);
 				}
 				if (i == 3 || i == 7) {
