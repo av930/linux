@@ -66,10 +66,17 @@ static void ed060sc4_vclk(struct ed060sc4fb_par *par)
 
 static void ed060sc4_hclk(struct ed060sc4fb_par *par)
 {
+#if 1
+	ndelay(50);
+	gpio_set_value(par->gpio_cl, 1);
+	ndelay(50);
+	gpio_set_value(par->gpio_cl, 0);
+#else
 	ndelay(40);
 	gpio_set_value(par->gpio_cl, 1);
 	ndelay(40);
 	gpio_set_value(par->gpio_cl, 0);
+#endif
 }
 
 static void ed060sc4_vscan_start(struct ed060sc4fb_par *par)
@@ -160,6 +167,7 @@ static void ed060sc4_power_on(struct ed060sc4fb_par *par)
 	int i;
 
 	gpio_set_value(par->gpio_vdd5, 1);
+	msleep(100);
 	gpio_set_value(par->gpio_vdd3, 1);
 
 	gpio_set_value(par->gpio_le, 0);
@@ -215,16 +223,18 @@ static void ed060sc4_power_off(struct ed060sc4fb_par *par)
 	gpio_set_value(par->gpio_vdd5, 0);
 }
 
-static void ed060sc4fb_subclear(struct ed060sc4fb_par *par)
+static void ed060sc4fb_subclear(struct ed060sc4fb_par *par, uint8_t color)
 {
 	unsigned int x, y;
 	uint8_t byte;
 
 	printk("#### %s\n", __func__);
 
+	byte = color;
+
 	ed060sc4_hscan_start(par);
 	/* byte = color ? BYTE_WHITE : BYTE_BLACK; */
-	byte = 0xAA;
+
 	for (x = 0; x < DPY_W; x++) {
 		ed060sc4_hscan_write(par, &byte, 1);
 	}
@@ -245,10 +255,10 @@ static void ed060sc4fb_dpy_update(struct ed060sc4fb_par *par)
 	unsigned char *buf = (unsigned char __force *)par->info->screen_base;
 	unsigned char data, pixel, gpio1, gpio2;
 
-	ed060sc4fb_subclear(par);
-	ed060sc4fb_subclear(par);
-	ed060sc4fb_subclear(par);
-	ed060sc4fb_subclear(par);
+	ed060sc4fb_subclear(par, 0xAA);
+	msleep(50);
+	ed060sc4fb_subclear(par, 0x55);
+	msleep(50);
 
 	ed060sc4_vscan_start(par);
 	for (y = 0; y < DPY_H; y++) {
@@ -515,6 +525,8 @@ static int ed060sc4fb_probe(struct platform_device *dev)
 	par->gpio_le = 7;
 	par->gpio_sph = 10;
 	par->gpio_spv = 13;
+	par->gpio_shr = 9;
+	par->gpio_rl = 12;
 
 	par->gpio_data[0] = 20;
 	par->gpio_data[1] = 21;
@@ -576,6 +588,18 @@ static int ed060sc4fb_probe(struct platform_device *dev)
 	retval = gpio_request_one(par->gpio_spv,
 			GPIOF_DIR_OUT | GPIOF_INIT_LOW,
 			"ED060SC4 spv");
+	if (retval)
+		goto err_gpio;
+
+	retval = gpio_request_one(par->gpio_shr,
+			GPIOF_DIR_OUT | GPIOF_INIT_LOW,
+			"ED060SC4 shr");
+	if (retval)
+		goto err_gpio;
+
+	retval = gpio_request_one(par->gpio_rl,
+			GPIOF_DIR_OUT | GPIOF_INIT_LOW,
+			"ED060SC4 rl");
 	if (retval)
 		goto err_gpio;
 
@@ -710,6 +734,8 @@ static int ed060sc4fb_remove(struct platform_device *dev)
 		module_put(par->board->owner);
 #endif
 		framebuffer_release(info);
+
+		/* TODO: free gpios */
 
 		ed060sc4_power_off(par);
 	}

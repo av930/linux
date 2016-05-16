@@ -26,6 +26,9 @@ struct ed060sc4fb_par {
 	int gpio_le;	/* gpio07 */
 	int gpio_sph;	/* gpio10 */
 	int gpio_spv;	/* gpio13 */
+	int gpio_shr;	/* gpio09 */
+	int gpio_rl;	/* gpio12 */
+
 	int gpio_data[8];	/* gpio20 ~ gpio27 */
 
 	int gpio_vdd3;	/* gpio19 */
