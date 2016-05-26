@@ -56,12 +56,18 @@ static struct fb_var_screeninfo ed060sc4fb_var = {
 
 /* main ed060sc4fb functions */
 
+static void ed060sc4_delay(int unit)
+{
+	/* msleep(ms); */
+	ndelay(unit*500); /* TODO:  */
+}
+
 static void ed060sc4_vclk(struct ed060sc4fb_par *par)
 {
 	gpio_set_value(par->gpio_ckv, 1);
-	udelay(1);
+	ed060sc4_delay(1);
 	gpio_set_value(par->gpio_ckv, 0);
-	udelay(4);
+	ed060sc4_delay(4);
 }
 
 static void ed060sc4_hclk(struct ed060sc4fb_par *par)
@@ -94,28 +100,28 @@ static void ed060sc4_vscan_write(struct ed060sc4fb_par *par)
 {
 	gpio_set_value(par->gpio_ckv, 1);
 	gpio_set_value(par->gpio_oe, 1);
-	udelay(5);
+	ed060sc4_delay(5);
 	gpio_set_value(par->gpio_oe, 0);
 	gpio_set_value(par->gpio_ckv, 0);
-	udelay(200);
+	ed060sc4_delay(200);
 }
 #endif
 
 static void ed060sc4_vscan_bulkwrite(struct ed060sc4fb_par *par)
 {
 	gpio_set_value(par->gpio_ckv, 1);
-	udelay(20);
+	ed060sc4_delay(20);
 	gpio_set_value(par->gpio_ckv, 0);
-	udelay(200);
+	ed060sc4_delay(200);
 }
 
 #if 0
 static void ed060sc4_vscan_skip(struct ed060sc4fb_par *par)
 {
 	gpio_set_value(par->gpio_ckv, 1);
-	udelay(1);
+	ed060sc4_delay(1);
 	gpio_set_value(par->gpio_ckv, 0);
-	udelay(100);
+	ed060sc4_delay(100);
 }
 #endif
 
@@ -183,7 +189,7 @@ static void ed060sc4_power_on(struct ed060sc4fb_par *par)
 	gpio_set_value(par->gpio_gmode, 0);
 	gpio_set_value(par->gpio_spv, 1);
 
-	msleep(100);
+	msleep(200);
 
 	gpio_set_value(par->gpio_vneg, 1);
 	msleep(1000);
@@ -235,7 +241,7 @@ static void ed060sc4fb_subclear(struct ed060sc4fb_par *par, uint8_t color)
 	ed060sc4_hscan_start(par);
 	/* byte = color ? BYTE_WHITE : BYTE_BLACK; */
 
-	for (x = 0; x < DPY_W; x++) {
+	for (x = 0; x < (DPY_W/8); x++) {
 		ed060sc4_hscan_write(par, &byte, 1);
 	}
 	ed060sc4_hscan_stop(par);
