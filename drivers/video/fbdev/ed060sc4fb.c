@@ -414,7 +414,7 @@ int ed060sc4_of_init(struct ed060sc4fb_par *par)
 	struct device *dev = &par->pdev->dev;
 	struct device_node *np = dev->of_node;
 	int i;
-	int ret = -ENOENT;
+	int ret = 0;
 
 	par->gpio_ckv = of_get_named_gpio(np, "gpio-ckv", 0);
 	if (!gpio_is_valid(par->gpio_ckv)){
@@ -527,7 +527,7 @@ static int ed060sc4fb_probe(struct platform_device *dev)
 	par->pdev = dev;
 	/* TODO: fill par->gpios */
 
-#if 1
+#if 0
 	par->gpio_ckv = 5;
 	par->gpio_cl = 4;
 	par->gpio_gmode = 11;
@@ -551,13 +551,7 @@ static int ed060sc4fb_probe(struct platform_device *dev)
 	par->gpio_vdd5 = 18;
 	par->gpio_vpos = 16;
 	par->gpio_vneg = 17;
-#else
-#if CONFIG_OF
-	retval = ed060sc4_of_init(par);
-	if (retval < 0)
-		goto err_fbreg;
-#endif
-#endif
+
 	retval = gpio_request_one(par->gpio_ckv,
 			GPIOF_DIR_OUT | GPIOF_INIT_LOW,
 			"ED060SC4 ckv");
@@ -685,6 +679,13 @@ static int ed060sc4fb_probe(struct platform_device *dev)
 	if (retval)
 		goto err_gpio;
 
+#else
+#if CONFIG_OF
+	retval = ed060sc4_of_init(par);
+	if (retval < 0)
+		goto err_fbreg;
+#endif
+#endif
 	ed060sc4_power_on(par);
 
 #if 0

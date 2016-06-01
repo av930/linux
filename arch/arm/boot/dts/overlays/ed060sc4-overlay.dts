@@ -9,8 +9,31 @@
 		__overlay__ {
 			ed060sc4: ed060sc4 {
 				compatible = "primeview,ed060sc4";
-				/* firmware = <&firmware>; */
 				status = "okay";
+
+				gpio-ckv = <&gpio 5 1>;
+				gpio-cl = <&gpio 4 1>;
+				gpio-gmode = <&gpio 11 1>;
+				gpio-oe = <&gpio 8 1>;
+				gpio-le = <&gpio 7 1>;
+				gpio-sph = <&gpio 10 1>;
+				gpio-spv = <&gpio 13 1>;
+				gpio-shr = <&gpio 9 1>;
+				gpio-rl = <&gpio 12 1>;
+
+				gpio-data = <&gpio 20 1
+					     &gpio 21 1
+					     &gpio 22 1
+					     &gpio 23 1
+					     &gpio 24 1
+					     &gpio 25 1
+					     &gpio 26 1
+					     &gpio 27 1>;
+
+				gpio-vdd3 = <&gpio 19 1>;
+				gpio-vdd5 = <&gpio 18 1>;
+				gpio-vpos = <&gpio 16 1>;
+				gpio-vneg = <&gpio 17 1>;
 			};
 		};
 	};
