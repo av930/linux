@@ -147,7 +147,7 @@ static void ed060sc4_hscan_write(struct ed060sc4fb_par *par,
 
 	while (count--) {
 		d = *data++;
-		for(i = 0; i < 8; i++) {
+		for (i = 0; i < 8; i++) {
 			gpio_set_value(par->gpio_data[i], (d & (1<<i)) ? 1 : 0);
 		}
 		ed060sc4_hclk(par);
@@ -273,7 +273,7 @@ static void ed060sc4fb_dpy_update(struct ed060sc4fb_par *par)
 		ed060sc4_hscan_start(par);
 		for (x = 0; x < DPY_W/8; x++) {
 			data = *(buf++);
-			for (i = 0; i < 8; i++){
+			for (i = 0; i < 8; i++) {
 				pixel = data & (1 << (8 - i + 1));
 				gpio1 = par->gpio_data[(i % 4) * 2];
 				gpio2 = par->gpio_data[(i % 4) * 2 + 1];
@@ -417,66 +417,66 @@ int ed060sc4_of_init(struct ed060sc4fb_par *par)
 	int ret = 0;
 
 	par->gpio_ckv = of_get_named_gpio(np, "gpio-ckv", 0);
-	if (!gpio_is_valid(par->gpio_ckv)){
+	if (!gpio_is_valid(par->gpio_ckv)) {
 		ret = -EINVAL;
 		goto exit;
 	}
 	par->gpio_cl = of_get_named_gpio(np, "gpio-cl", 0);
-	if (!gpio_is_valid(par->gpio_cl)){
+	if (!gpio_is_valid(par->gpio_cl)) {
 		ret = -EINVAL;
 		goto exit;
 	}
 	par->gpio_gmode = of_get_named_gpio(np, "gpio-gmode", 0);
-	if (!gpio_is_valid(par->gpio_gmode)){
+	if (!gpio_is_valid(par->gpio_gmode)) {
 		ret = -EINVAL;
 		goto exit;
 	}
 	par->gpio_oe = of_get_named_gpio(np, "gpio-oe", 0);
-	if (!gpio_is_valid(par->gpio_oe)){
+	if (!gpio_is_valid(par->gpio_oe)) {
 		ret = -EINVAL;
 		goto exit;
 	}
 	par->gpio_le = of_get_named_gpio(np, "gpio-le", 0);
-	if (!gpio_is_valid(par->gpio_le)){
+	if (!gpio_is_valid(par->gpio_le)) {
 		ret = -EINVAL;
 		goto exit;
 	}
 	par->gpio_sph = of_get_named_gpio(np, "gpio-sph", 0);
-	if (!gpio_is_valid(par->gpio_sph)){
+	if (!gpio_is_valid(par->gpio_sph)) {
 		ret = -EINVAL;
 		goto exit;
 	}
 	par->gpio_spv = of_get_named_gpio(np, "gpio-spv", 0);
-	if (!gpio_is_valid(par->gpio_spv)){
+	if (!gpio_is_valid(par->gpio_spv)) {
 		ret = -EINVAL;
 		goto exit;
 	}
 
 	for (i = 0; i < 8; i++) {
 		par->gpio_data[i] = of_get_named_gpio(np, "gpio-data", i);
-		if (!gpio_is_valid(par->gpio_data[i])){
+		if (!gpio_is_valid(par->gpio_data[i])) {
 			ret = -EINVAL;
 			goto exit;
 		}
 	}
 
 	par->gpio_vdd3 = of_get_named_gpio(np, "gpio-vdd3", 0);
-	if (!gpio_is_valid(par->gpio_vdd3)){
+	if (!gpio_is_valid(par->gpio_vdd3)) {
 		ret = -EINVAL;
 		goto exit;
 	}
 	par->gpio_vdd5 = of_get_named_gpio(np, "gpio-vdd5", 0);
-	if (!gpio_is_valid(par->gpio_vdd5)){
+	if (!gpio_is_valid(par->gpio_vdd5)) {
 		ret = -EINVAL;
 		goto exit;
 	}
 	par->gpio_vpos = of_get_named_gpio(np, "gpio-vpos", 0);
-	if (!gpio_is_valid(par->gpio_vpos)){
+	if (!gpio_is_valid(par->gpio_vpos)) {
 		ret = -EINVAL;
 		goto exit;
 	}
 	par->gpio_vneg = of_get_named_gpio(np, "gpio-vneg", 0);
-	if (!gpio_is_valid(par->gpio_vneg)){
+	if (!gpio_is_valid(par->gpio_vneg)) {
 		ret = -EINVAL;
 		goto exit;
 	}
@@ -527,7 +527,7 @@ static int ed060sc4fb_probe(struct platform_device *dev)
 	par->pdev = dev;
 	/* TODO: fill par->gpios */
 
-#if 0
+#if 1
 	par->gpio_ckv = 5;
 	par->gpio_cl = 4;
 	par->gpio_gmode = 11;
